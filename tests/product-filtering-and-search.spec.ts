@@ -1,6 +1,4 @@
 import { test, expect } from "@playwright/test";
-import { loginData } from "../test-data/login.data"
-import { LoginPage } from "../pages/login.page";
 import { ProductFilteringAndSearchPage } from "../pages/productFilteringAndSearch.page"
 
 test.describe("Product filtering & search", () => {

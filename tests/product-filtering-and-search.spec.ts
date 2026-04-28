@@ -11,15 +11,22 @@ test.describe("Product filtering & search", () => {
   const categoryElectronics = "Electronics";
   const categorySports = "Sports";
   const categoryClothing = "Clothing";
-  
+
   test.beforeEach(async ({page}) => {
     productFilteringAndSearch = new ProductFilteringAndSearchPage(page);
     await page.goto(challengeURL);
   });
 
-  test.only("Filter products by category", async ({page}) => {
-    productFilteringAndSearch.filterCategory(categoryElectronics);
-    productFilteringAndSearch.assertProductCategory(categoryElectronics, await productFilteringAndSearch.getAllProducts())
+  test("Filter products by category", async ({page}) => {
+    await productFilteringAndSearch.filterCategory(categoryElectronics);
+    const products = await productFilteringAndSearch.getAllProducts();
+    await productFilteringAndSearch.assertProductCategory(categoryElectronics, products);
+  });
+
+  test("Filter products by price range", async ({page}) => {
+    await productFilteringAndSearch.setMinimumPrice("1000");
+    await productFilteringAndSearch.setMaximumPrice("5000");
+    await productFilteringAndSearch.assertProductsPriceRange("1000","5000");
   });
 
 

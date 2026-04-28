@@ -1,6 +1,4 @@
 import { test, expect } from "@playwright/test";
-import { loginData } from "../test-data/login.data"
-import { LoginPage } from "../pages/login.page";
 import { ProductFilteringAndSearchPage } from "../pages/productFilteringAndSearch.page"
 
 test.describe("Product filtering & search", () => {
@@ -11,15 +9,31 @@ test.describe("Product filtering & search", () => {
   const categoryElectronics = "Electronics";
   const categorySports = "Sports";
   const categoryClothing = "Clothing";
-  
+
   test.beforeEach(async ({page}) => {
     productFilteringAndSearch = new ProductFilteringAndSearchPage(page);
     await page.goto(challengeURL);
   });
 
-  test.only("Filter products by category", async ({page}) => {
-    productFilteringAndSearch.filterCategory(categoryElectronics);
-    productFilteringAndSearch.assertProductCategory(categoryElectronics, await productFilteringAndSearch.getAllProducts())
+  test("Filter products by category", async ({page}) => {
+    await productFilteringAndSearch.filterCategory(categoryElectronics);
+    await productFilteringAndSearch.assertProductCategory(categoryElectronics);
+  });
+
+  test("Filter products by price range", async ({page}) => {
+    await productFilteringAndSearch.setMinimumPrice("1000");
+    await productFilteringAndSearch.setMaximumPrice("5000");
+    await productFilteringAndSearch.assertProductsPriceRange("1000","5000");
+  });
+
+  test("Filter products by minimum rating", async ({page}) => {
+    await productFilteringAndSearch.filterStars("4");
+    await productFilteringAndSearch.assertProductStars("4");
+  });
+
+  test("Filter products by stock content", async ({page}) => {
+    await productFilteringAndSearch.filterStock();
+    await productFilteringAndSearch.assertProductsInStock("In Stock");
   });
 
 

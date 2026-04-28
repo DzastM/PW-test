@@ -19,14 +19,23 @@ test.describe("Product filtering & search", () => {
 
   test("Filter products by category", async ({page}) => {
     await productFilteringAndSearch.filterCategory(categoryElectronics);
-    const products = await productFilteringAndSearch.getAllProducts();
-    await productFilteringAndSearch.assertProductCategory(categoryElectronics, products);
+    await productFilteringAndSearch.assertProductCategory(categoryElectronics);
   });
 
   test("Filter products by price range", async ({page}) => {
     await productFilteringAndSearch.setMinimumPrice("1000");
     await productFilteringAndSearch.setMaximumPrice("5000");
     await productFilteringAndSearch.assertProductsPriceRange("1000","5000");
+  });
+
+  test("Filter products by minimum rating", async ({page}) => {
+    await productFilteringAndSearch.filterStars("4");
+    await productFilteringAndSearch.assertProductStars("4");
+  });
+
+  test("Filter products by stock content", async ({page}) => {
+    await productFilteringAndSearch.filterStock();
+    await productFilteringAndSearch.assertProductsInStock("In Stock");
   });
 
 

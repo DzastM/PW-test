@@ -47,42 +47,4 @@ test.describe("Product filtering & search", () => {
     await productFilteringAndSearch.verifyFilter("Stars");
     await productFilteringAndSearch.verifyFilter("In Stock");
   });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // test("prosty przelew", async ({ page }) => {
-
-
-  //   await page.locator("#widget_1_transfer_receiver").selectOption(receiverId);
-  //   await page.locator("#widget_1_transfer_amount").fill(transferAmount);    
-  //   await page.locator("#widget_1_transfer_title").fill(transferTitle);
-
-  //   await page.getByRole("button", { name: doItButton }).click();
-  //   await page.getByTestId("close-button").click();
-    
-  //   await expect(page.locator("#show_messages")).toHaveText(
-  //     `Przelew wykonany! Chuck Demobankowy - ${transferAmount},00PLN - ${transferTitle}`);
-  // });
-
-  // test("doładownie telefonu", async ({ page }) => {
-  //   await page.locator("#widget_1_topup_receiver").selectOption(topUpReceiver);
-    
-  //   await page.locator("#widget_1_topup_amount").fill(topUpAmount);
-  //   await page.locator("#uniform-widget_1_topup_agreement").click();
-  //   await page.getByRole("button", { name: "doładuj telefon" }).dblclick();
-  //   await page.getByTestId("close-button").click();
-
-  //   await expect(page.locator("#show_messages")).toHaveText(`Doładowanie wykonane! ${topUpAmount},00PLN na numer ${topUpReceiver}`);
-  // });
 });

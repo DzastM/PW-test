@@ -1,4 +1,5 @@
 import { expect, Locator, Page } from "@playwright/test";
+import { ProductPurchasingPage } from "./productPurchasing.page";
 
 export interface Products {
     name: string;
@@ -15,6 +16,9 @@ export class CartPage {
     private readonly proceedToPaymentButton: Locator;
     private readonly payNowButton: Locator;
     private readonly fullMessage: Locator;
+    private readonly cancelButton: Locator;
+    private readonly failMessage: Locator;
+    private readonly backToHome: Locator;
 
     constructor(private page: Page) {        
         this.cartContent = this.page.locator("css=.space-y-4 > div");
@@ -25,6 +29,9 @@ export class CartPage {
         this.proceedToPaymentButton = this.page.getByRole("button", {name: 'Proceed To Payment'});
         this.payNowButton = this.page.getByRole("button", {name: "Pay Now"});
         this.fullMessage = this.page.locator("css=.space-y-6 > div");
+        this.cancelButton = this.page.getByRole("button").getByText("Cancel");
+        this.failMessage = this.page.locator("css = .space-y-4 > h6");
+        this.backToHome = this.page.getByRole("button").getByText("Back to Home");
     }
 
     async getCartItems() : Promise<Products[]> {
@@ -67,7 +74,7 @@ export class CartPage {
             }
         }    
     }
-
+//adjust for more than 1 product
     async verifyProductQuantity(productName: string, expectedQuantity: number) {
         const currentQuantity = Number(await this.cartContent.locator("xpath=.//p[contains(text(),'" + productName + "')]/following-sibling::div//p").innerText());
         expect(currentQuantity).toBe(expectedQuantity);
@@ -103,8 +110,33 @@ export class CartPage {
         const actualMessage = (await this.fullMessage.locator("h5").innerText()).replace(/[^a-zA-Z0-9\s]/g, '').trim();
         expect(actualMessage).toEqual(expectedMessage);
     }
+//verify for more than 1 product
+    async assertOrderData(expectedNameSurname: string, expectedAddress: string, expectedProductsData: string, totalAmount: string) {
+        const actualNameSurname = await this.page.locator("xpath = //div[h6='Billing Details:']//p[1]").innerText();
+        const actualAddress = await this.page.locator("xpath = //div[h6='Billing Details:']//p[2]").innerText();
+        const actualProductsData = await this.page.locator("xpath = //div[h6='Billing Details:']//p[3]").innerText();
+        expect(actualNameSurname).toEqual(expectedNameSurname);
+        expect(actualAddress).toEqual(expectedAddress);
+        expect(actualProductsData).toEqual(expectedProductsData);
+    }
 
-    async assertOrderData(nameSurname: string, address: string, productsData: string, totalAmount: string) {
+    async clickCancelButton() {
+        await this.cancelButton.click();
+    }
 
+    async verifyFailMessage(expectedMessage: string) {
+        const actualMessage = (await this.failMessage.innerText()).replace(/[^a-zA-Z0-9\s]/g, '').trim()
+        expect(actualMessage).toEqual(expectedMessage);
+    }
+
+    async verifyGoHomeButtonState(expectedState: boolean) {
+        if(expectedState) {
+            expect(this.backToHome).toBeVisible();
+        } else expect(this.backToHome).toBeHidden();   
+    }
+
+    async clickBackToHomeButton(): Promise<ProductPurchasingPage> {
+        await this.backToHome.click();
+        return new ProductPurchasingPage(this.page);
     }
 }

@@ -11,17 +11,34 @@ export interface ProductData {
 
 export class ProductPurchasingPage {
     private readonly viewCartButton: Locator;
+    private readonly header: Locator;
+    private readonly productsInCartNumber : Locator;
+
     constructor(private page: Page) {        
         this.viewCartButton = this.page.locator("header button")
+        this.header = this.page.locator("h1");
+        this.productsInCartNumber = this.viewCartButton.locator("span .MuiBadge-badge");
     }
-
+//add possibility to add product more than once
     async addProductToCart(productName: string) : Promise<void> {
         await this.page.getByText(productName).locator('..').getByRole('button', {name: 'Add to cart'}).click();
-        //await this.page.getByRole('option', {selected: false}).filter({hasText: categoryName}).click();
     } 
 
     async clickViewCartButton(): Promise<CartPage> {
         await this.viewCartButton.click();
         return new CartPage(this.page);
+    }
+
+    async verifyPageHeader(expectedHeader: string) {
+        const actualHeader = await this.header.innerText();
+        expect(actualHeader).toEqual(expectedHeader);
+    }
+
+    async verifyCartProductNumber(expectedNumber: number) {
+        if(expectedNumber === 0) {
+            expect(await this.productsInCartNumber.innerText()).toEqual("");
+        } else {
+            expect(Number(await this.productsInCartNumber.innerText())).toBe(expectedNumber);
+        }
     }
 }

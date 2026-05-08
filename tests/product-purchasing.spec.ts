@@ -50,7 +50,7 @@ test.describe("Product purchasing", () => {
     await cart.assertProceedToPaymentButtonIsEnabled(false);
   });
 
-  test.only("Successful payment flow", async ({page}) => {
+  test("Successful payment flow", async ({page}) => {
     await productPurchasing.addProductToCart("Fitness Band");
     cart = await productPurchasing.clickViewCartButton();
     await cart.clickProceedToAddressButton();
@@ -62,10 +62,25 @@ test.describe("Product purchasing", () => {
   });
 
   test("Failed payment flow", async ({page}) => {
-    
+    await productPurchasing.addProductToCart("Fitness Band");
+    cart = await productPurchasing.clickViewCartButton();
+    await cart.clickProceedToAddressButton();
+    await cart.fillInCustomerData("John", "Doe", "Sesame Street 123");
+    await cart.clickProceedToPaymentButton();
+    await cart.clickCancelButton();
+    await cart.verifyFailMessage("Payment Failed");
+    await cart.verifyGoHomeButtonState(true);
   });
 
-  test("Go Home resets flow", async ({page}) => {
-    
+  test.only("Go Home resets flow", async ({page}) => {
+    await productPurchasing.addProductToCart("Fitness Band");
+    cart = await productPurchasing.clickViewCartButton();
+    await cart.clickProceedToAddressButton();
+    await cart.fillInCustomerData("John", "Doe", "Sesame Street 123");
+    await cart.clickProceedToPaymentButton();
+    await cart.clickPayNowButton();
+    productPurchasing = await cart.clickBackToHomeButton();
+    await productPurchasing.verifyPageHeader("E-commerce End-to-End Product Purchasing Flow");
+    await productPurchasing.verifyCartProductNumber(0);
   });
 });

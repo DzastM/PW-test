@@ -13,6 +13,8 @@ export class CartPage {
     private readonly productNumber: Locator;
     private readonly proceedToAddressButton: Locator;
     private readonly proceedToPaymentButton: Locator;
+    private readonly payNowButton: Locator;
+    private readonly fullMessage: Locator;
 
     constructor(private page: Page) {        
         this.cartContent = this.page.locator("css=.space-y-4 > div");
@@ -21,6 +23,8 @@ export class CartPage {
         this.productNumber = this.cartContent.locator("css=.font-semibold");
         this.proceedToAddressButton = this.page.getByRole("button", {name: 'Proceed To Address'});
         this.proceedToPaymentButton = this.page.getByRole("button", {name: 'Proceed To Payment'});
+        this.payNowButton = this.page.getByRole("button", {name: "Pay Now"});
+        this.fullMessage = this.page.locator("css=.space-y-6 > div");
     }
 
     async getCartItems() : Promise<Products[]> {
@@ -79,5 +83,28 @@ export class CartPage {
         } else {
             await expect(this.proceedToPaymentButton).toBeDisabled();
         }
+    }
+
+    async fillInCustomerData(name: string, surname: string, address: string) {
+        await this.cartContent.getByText("First Name").locator("xpath=./following-sibling::div//input").fill(name);
+        await this.cartContent.getByText("Last Name").locator("xpath=./following-sibling::div//input").fill(surname);
+        await this.cartContent.getByRole('textbox', {name: "Address"}).fill(address);
+    }
+
+    async clickProceedToPaymentButton() {
+        await this.proceedToPaymentButton.click();
+    }
+
+    async clickPayNowButton() {
+        await this.payNowButton.click();
+    }
+
+    async assertSuccessMessage(expectedMessage: string) {        
+        const actualMessage = (await this.fullMessage.locator("h5").innerText()).replace(/[^a-zA-Z0-9\s]/g, '').trim();
+        expect(actualMessage).toEqual(expectedMessage);
+    }
+
+    async assertOrderData(nameSurname: string, address: string, productsData: string, totalAmount: string) {
+
     }
 }

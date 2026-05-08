@@ -50,8 +50,15 @@ test.describe("Product purchasing", () => {
     await cart.assertProceedToPaymentButtonIsEnabled(false);
   });
 
-  test("Successful payment flow", async ({page}) => {
-    
+  test.only("Successful payment flow", async ({page}) => {
+    await productPurchasing.addProductToCart("Fitness Band");
+    cart = await productPurchasing.clickViewCartButton();
+    await cart.clickProceedToAddressButton();
+    await cart.fillInCustomerData("John", "Doe", "Sesame Street 123");
+    await cart.clickProceedToPaymentButton();
+    await cart.clickPayNowButton();
+    await cart.assertSuccessMessage("Order Placed Successfully");
+    await cart.assertOrderData("John Doe", "Sesame Street 123", "Fitness Band x 1 = $60", "$60");
   });
 
   test("Failed payment flow", async ({page}) => {
@@ -61,33 +68,4 @@ test.describe("Product purchasing", () => {
   test("Go Home resets flow", async ({page}) => {
     
   });
-/*
-  test("Filter products by price range", async ({page}) => {
-    await productFilteringAndSearch.setMinimumPrice("10");
-    await productFilteringAndSearch.setMaximumPrice("70");
-    await productFilteringAndSearch.assertProductsPriceRange("10","70");
-  });
-
-  test("Filter products by minimum rating", async ({page}) => {
-    await productFilteringAndSearch.filterStars("3");
-    await productFilteringAndSearch.assertProductStars("3");
-  });
-
-  test("Filter products by stock content", async ({page}) => {
-    await productFilteringAndSearch.filterStock();
-    await productFilteringAndSearch.assertProductsInStock("In Stock");
-  });
-
-  test("Reset filters", async({page}) => {
-    await productFilteringAndSearch.filterCategory("Sports");
-    await productFilteringAndSearch.filterStars("5");
-    await productFilteringAndSearch.filterStock();
-    await productFilteringAndSearch.setMaximumPrice("60");
-    await productFilteringAndSearch.resetFilters();
-    await productFilteringAndSearch.verifyFilter("Category");
-    await productFilteringAndSearch.verifyFilter("Price");
-    await productFilteringAndSearch.verifyFilter("Stars");
-    await productFilteringAndSearch.verifyFilter("In Stock");
-  });
-  */
 });

@@ -1,11 +1,7 @@
 import { expect, Locator, Page } from "@playwright/test";
 import { ProductPurchasingPage } from "./productPurchasing.page";
-
-export interface Products {
-    name: string;
-    quantity: string;
-    price: string;
-}
+import { Products } from "../interfaces/products.interface"
+import { cartProducts} from "../test-data/productPurchasing/productPurchasingTestData"
 
 export class CartPage {
     private readonly cartContent: Locator;
@@ -40,23 +36,26 @@ export class CartPage {
         //Cart content looks like this:
         //<product name><$price>       -<quantity>+      <$price>
         
-        for (const item of cartItems) {
+        cartItems.forEach(async () =>  {
             const name = (await this.productName.innerText()).split('(')[0].trim();
             const quantity = await this.productQuantity.innerText();
             const price = (await this.productNumber.innerText()).split('$')[1].trim();
             
             items.push({ name, quantity, price });
-        }
+        })
         
         return items;
     }
     
-    async verifyCartContent(productName: string, productQuantity: string, productPrice: string) {
-        const items: Products[] = await this.getCartItems();
-        for (const item of items) {
-            expect(item.name).toEqual(productName);
-            expect(item.price).toEqual(productPrice);
-            expect(item.quantity).toEqual(productQuantity);
+    async verifyCartContent(...expectedProducts: Products[]) {
+        const actualProducts: Products[] = await this.getCartItems();
+
+        for (const expectedProduct of expectedProducts) {
+            const matchingItem = actualProducts.find(item => item.name === expectedProduct.name);
+            expect(matchingItem).toBeDefined();
+
+            expect(matchingItem?.price).toEqual(expectedProduct.price);
+            expect(matchingItem?.quantity).toEqual(expectedProduct.quantity);
         }
     }
 
@@ -75,6 +74,7 @@ export class CartPage {
         }    
     }
 //adjust for more than 1 product
+//use verifycartcontent
     async verifyProductQuantity(productName: string, expectedQuantity: number) {
         const currentQuantity = Number(await this.cartContent.locator("xpath=.//p[contains(text(),'" + productName + "')]/following-sibling::div//p").innerText());
         expect(currentQuantity).toBe(expectedQuantity);

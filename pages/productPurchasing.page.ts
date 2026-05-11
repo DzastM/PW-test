@@ -1,5 +1,6 @@
 import { expect, Locator, Page } from "@playwright/test";
 import { CartPage } from '../pages/cartPage.page'
+import { Products } from "../interfaces/products.interface";
 
 export interface ProductData {
     name: string;
@@ -23,6 +24,12 @@ export class ProductPurchasingPage {
     async addProductToCart(productName: string) : Promise<void> {
         await this.page.getByText(productName).locator('..').getByRole('button', {name: 'Add to cart'}).click();
     } 
+
+    async addProductsToCart(...products: Products[]) {
+        for (const product of products) {
+            await this.page.getByText(product.name).locator('..').getByRole('button', {name: 'Add to cart'}).click();
+        }
+    }
 
     async clickViewCartButton(): Promise<CartPage> {
         await this.viewCartButton.click();

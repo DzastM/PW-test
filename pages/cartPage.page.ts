@@ -1,7 +1,8 @@
 import { expect, Locator, Page } from "@playwright/test";
 import { ProductPurchasingPage } from "./productPurchasing.page";
 import { Products } from "../interfaces/products.interface"
-import { cartProducts} from "../test-data/productPurchasing/productPurchasingTestData"
+import { UserData } from "../interfaces/userData.interface";
+import { user } from "../test-data/productPurchasing/productPurchasingTestData";
 
 export class CartPage {
     private readonly cartContent: Locator;
@@ -73,11 +74,16 @@ export class CartPage {
             }
         }    
     }
-//adjust for more than 1 product
-//use verifycartcontent
-    async verifyProductQuantity(productName: string, expectedQuantity: number) {
-        const currentQuantity = Number(await this.cartContent.locator("xpath=.//p[contains(text(),'" + productName + "')]/following-sibling::div//p").innerText());
-        expect(currentQuantity).toBe(expectedQuantity);
+    
+    async verifyProductCartData(productName: string, expectedQuantity?: number, expectedPrice?: number) {
+        if(typeof expectedQuantity !== 'undefined') {
+            const currentQuantity = Number(await this.cartContent.locator("xpath=.//p[contains(text(),'" + productName + "')]/following-sibling::div//p").innerText());
+            expect(currentQuantity).toBe(expectedQuantity);
+        }
+        if(typeof expectedPrice !== 'undefined') {
+            const currentPrice =  Number((await this.cartContent.locator("xpath=.//p[contains(text(),'" + productName + "')]/following-sibling::p").innerText()).split('$')[1].trim());
+            expect(currentPrice).toBe(expectedPrice);
+        }    
     }
 
     async clickProceedToAddressButton() {
@@ -92,10 +98,10 @@ export class CartPage {
         }
     }
 
-    async fillInCustomerData(name: string, surname: string, address: string) {
-        await this.cartContent.getByText("First Name").locator("xpath=./following-sibling::div//input").fill(name);
-        await this.cartContent.getByText("Last Name").locator("xpath=./following-sibling::div//input").fill(surname);
-        await this.cartContent.getByRole('textbox', {name: "Address"}).fill(address);
+    async fillInCustomerData(userData: UserData) {        
+        await this.cartContent.getByText("First Name").locator("xpath=./following-sibling::div//input").fill(userData.name);
+        await this.cartContent.getByText("Last Name").locator("xpath=./following-sibling::div//input").fill(userData.surname);
+        await this.cartContent.getByRole('textbox', {name: "Address"}).fill(userData.address);
     }
 
     async clickProceedToPaymentButton() {
@@ -110,14 +116,40 @@ export class CartPage {
         const actualMessage = (await this.fullMessage.locator("h5").innerText()).replace(/[^a-zA-Z0-9\s]/g, '').trim();
         expect(actualMessage).toEqual(expectedMessage);
     }
-//verify for more than 1 product
-    async assertOrderData(expectedNameSurname: string, expectedAddress: string, expectedProductsData: string, totalAmount: string) {
+    
+    async assertOrderData(userData: UserData, totalAmount: string, ...expectedProducts: Products[]) {
         const actualNameSurname = await this.page.locator("xpath = //div[h6='Billing Details:']//p[1]").innerText();
         const actualAddress = await this.page.locator("xpath = //div[h6='Billing Details:']//p[2]").innerText();
-        const actualProductsData = await this.page.locator("xpath = //div[h6='Billing Details:']//p[3]").innerText();
-        expect(actualNameSurname).toEqual(expectedNameSurname);
-        expect(actualAddress).toEqual(expectedAddress);
-        expect(actualProductsData).toEqual(expectedProductsData);
+        const actualProductsData = await this.page.locator("xpath = //h6[text()='Order Summary:']/following-sibling::p").all();
+        const items: Products[] = [];
+        
+        for(const product of actualProductsData) {
+            const fullData = await product.innerText();
+                // Bluetooth Speaker x 1 = $80
+            const match = fullData.match(/(.*)\s+x\s+(\d+)\s+=\s+\$(\d+)/);
+            if (!match) {
+                continue;
+            }
+            const [, name, quantity, price] = match;
+
+            items.push({
+                name: name.trim(),
+                quantity: quantity.trim(),
+                price: price.trim()
+            });
+        };
+
+        expect(actualNameSurname).toEqual(userData.name + " " + userData.surname);
+        expect(actualAddress).toEqual(userData.address);
+
+        for (const expectedProduct of expectedProducts) {
+            const matchingItem = items.find(item => item.name === expectedProduct.name);
+            
+            expect(matchingItem).toBeDefined();
+
+            expect(matchingItem?.price).toEqual(expectedProduct.price);
+            expect(matchingItem?.quantity).toEqual(expectedProduct.quantity);
+        }
     }
 
     async clickCancelButton() {

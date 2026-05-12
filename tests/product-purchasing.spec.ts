@@ -1,7 +1,8 @@
 import { test } from "@playwright/test";
 import { ProductPurchasingPage } from "../pages/productPurchasing.page"
 import { CartPage } from "../pages/cartPage.page";
-import { cartProducts } from "../test-data/productPurchasing/productPurchasingTestData"
+import { cartProducts, user } from "../test-data/productPurchasing/productPurchasingTestData"
+import { userData } from "../test-data/userData";
 
 test.describe("Product purchasing", () => {
 
@@ -24,14 +25,14 @@ test.describe("Product purchasing", () => {
     await cart.verifyCartContent(...cartProducts.add_to_cart_and_verify);
   });
 
-  test.only("Increase and decrease product quantity", async ({page}) => {
+  test("Increase and decrease product quantity", async ({page}) => {
     await productPurchasing.addProductsToCart(...cartProducts.increase_decrease)
     cart = await productPurchasing.clickViewCartButton();
     await cart.updateProductQuantity("Wireless Headphones", 3);
     await cart.updateProductQuantity("Fitness Band", 3);
     await cart.updateProductQuantity("Wireless Headphones", 1);
-    await cart.verifyProductQuantity("Fitness Band", 3);
-    await cart.verifyProductQuantity("Wireless Headphones", 1);
+    await cart.verifyProductCartData("Fitness Band", 3);
+    await cart.verifyProductCartData("Wireless Headphones", 1);
   });
 
   test("Remove product from cart", async ({page}) => {
@@ -42,28 +43,28 @@ test.describe("Product purchasing", () => {
   });
 
   test("Billing form validation", async ({page}) => {
-    await productPurchasing.addProductToCart("Bluetooth Speaker");
+    await productPurchasing.addProductsToCart(...cartProducts.billing_form_validation);
     cart = await productPurchasing.clickViewCartButton();
     await cart.clickProceedToAddressButton();
     await cart.assertProceedToPaymentButtonIsEnabled(false);
   });
 
   test("Successful payment flow", async ({page}) => {
-    await productPurchasing.addProductToCart("Fitness Band");
+    await productPurchasing.addProductsToCart(...cartProducts.successfull_payment_flow);
     cart = await productPurchasing.clickViewCartButton();
     await cart.clickProceedToAddressButton();
-    await cart.fillInCustomerData("John", "Doe", "Sesame Street 123");
+    await cart.fillInCustomerData(userData.userBigBird);
     await cart.clickProceedToPaymentButton();
     await cart.clickPayNowButton();
     await cart.assertSuccessMessage("Order Placed Successfully");
-    await cart.assertOrderData("John Doe", "Sesame Street 123", "Fitness Band x 1 = $60", "$60");
+    await cart.assertOrderData(userData.userBigBird, "" , ...cartProducts.successfull_payment_flow);
   });
 
   test("Failed payment flow", async ({page}) => {
     await productPurchasing.addProductToCart("Fitness Band");
     cart = await productPurchasing.clickViewCartButton();
     await cart.clickProceedToAddressButton();
-    await cart.fillInCustomerData("John", "Doe", "Sesame Street 123");
+    await cart.fillInCustomerData(userData.userBigBird);
     await cart.clickProceedToPaymentButton();
     await cart.clickCancelButton();
     await cart.verifyFailMessage("Payment Failed");
@@ -74,7 +75,7 @@ test.describe("Product purchasing", () => {
     await productPurchasing.addProductToCart("Fitness Band");
     cart = await productPurchasing.clickViewCartButton();
     await cart.clickProceedToAddressButton();
-    await cart.fillInCustomerData("John", "Doe", "Sesame Street 123");
+    await cart.fillInCustomerData(userData.userBigBird);
     await cart.clickProceedToPaymentButton();
     await cart.clickPayNowButton();
     productPurchasing = await cart.clickBackToHomeButton();

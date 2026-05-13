@@ -43,7 +43,7 @@ export class CartPage {
             const price = (await cartItem.locator("css=.font-semibold").innerText()).split('$')[1].trim();
             
             items.push({ name, quantity, price });
-        }
+        })
         
         return items;
     }

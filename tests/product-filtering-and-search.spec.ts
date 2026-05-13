@@ -6,9 +6,18 @@ test.describe("Product filtering & search", () => {
   let productFilteringAndSearch: ProductFilteringAndSearchPage;
 
   const challengeURL = "/challenges/product-filtering";
-  const categoryElectronics = "Electronics";
-  const categorySports = "Sports";
-  const categoryClothing = "Clothing";
+  enum categories {
+    Electronics = "Electronics",
+    Sports = "Sports",
+    Clothing = "Clothing"
+  }
+  enum filters {
+    Category = "Category",
+    Price = "Price",
+    Stars = "Stars",
+    InStock = "In Stock"
+  }
+  
 
   test.beforeEach(async ({page}) => {
     productFilteringAndSearch = new ProductFilteringAndSearchPage(page);
@@ -16,8 +25,8 @@ test.describe("Product filtering & search", () => {
   });
 
   test("Filter products by category", async ({page}) => {
-    await productFilteringAndSearch.filterCategory(categoryElectronics);
-    await productFilteringAndSearch.assertProductCategory(categoryElectronics);
+    await productFilteringAndSearch.filterCategory(categories.Electronics);
+    await productFilteringAndSearch.assertProductCategory(categories.Electronics);
   });
 
   test("Filter products by price range", async ({page}) => {
@@ -37,14 +46,14 @@ test.describe("Product filtering & search", () => {
   });
 
   test("Reset filters", async({page}) => {
-    await productFilteringAndSearch.filterCategory("Sports");
+    await productFilteringAndSearch.filterCategory(categories.Sports);
     await productFilteringAndSearch.filterStars("5");
     await productFilteringAndSearch.filterStock();
     await productFilteringAndSearch.setMaximumPrice("60");
     await productFilteringAndSearch.resetFilters();
-    await productFilteringAndSearch.verifyFilter("Category");
-    await productFilteringAndSearch.verifyFilter("Price");
-    await productFilteringAndSearch.verifyFilter("Stars");
-    await productFilteringAndSearch.verifyFilter("In Stock");
+    await productFilteringAndSearch.verifyFilter(filters.Category);
+    await productFilteringAndSearch.verifyFilter(filters.Price);
+    await productFilteringAndSearch.verifyFilter(filters.Stars);
+    await productFilteringAndSearch.verifyFilter(filters.InStock);
   });
 });

@@ -10,9 +10,6 @@ test.describe("Product purchasing", () => {
   let cart: CartPage;
 
   const challengeURL = "/challenges/product-purchasing";
-  const categoryElectronics = "Electronics";
-  const categorySports = "Sports";
-  const categoryClothing = "Clothing";
 
   test.beforeEach(async ({page}) => {
     productPurchasing = new ProductPurchasingPage(page);

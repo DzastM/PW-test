@@ -16,7 +16,7 @@ test.describe("Product purchasing", () => {
     await page.goto(challengeURL);
   });
 
-  test.only("Add product to cart and verify", async ({page}) => {
+  test("Add product to cart and verify", async ({page}) => {
     await productPurchasing.addProductsToCart(...cartProducts.add_to_cart_and_verify);
     cart = await productPurchasing.clickViewCartButton();
     await cart.verifyCartContent(...cartProducts.add_to_cart_and_verify);

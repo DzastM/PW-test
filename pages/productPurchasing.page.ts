@@ -43,7 +43,7 @@ export class ProductPurchasingPage {
 
     async verifyCartProductNumber(expectedNumber: number) {
         if(expectedNumber === 0) {
-            expect(await this.productsInCartNumber.innerText()).toEqual("");
+            await expect(this.productsInCartNumber).toHaveClass(/MuiBadge-invisible/);
         } else {
             expect(Number(await this.productsInCartNumber.innerText())).toBe(expectedNumber);
         }

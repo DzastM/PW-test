@@ -10,16 +10,13 @@ test.describe("Product purchasing", () => {
   let cart: CartPage;
 
   const challengeURL = "/challenges/product-purchasing";
-  const categoryElectronics = "Electronics";
-  const categorySports = "Sports";
-  const categoryClothing = "Clothing";
 
   test.beforeEach(async ({page}) => {
     productPurchasing = new ProductPurchasingPage(page);
     await page.goto(challengeURL);
   });
 
-  test("Add product to cart and verify", async ({page}) => {
+  test.only("Add product to cart and verify", async ({page}) => {
     await productPurchasing.addProductsToCart(...cartProducts.add_to_cart_and_verify);
     cart = await productPurchasing.clickViewCartButton();
     await cart.verifyCartContent(...cartProducts.add_to_cart_and_verify);

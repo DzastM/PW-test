@@ -17,11 +17,12 @@ test.describe("Product listing & pagination", () => {
   });
 
   test("Count products in each category", async ({page}) => {
-
+    await productListingAndPagination.assertProductNumberInCategory("Books");
+//navigate through all pages, extract category of each product and count products per category
   });
 
   test("Find specific product and identify its page", async ({page}) => {
-
+//find product by name navigating through pages and verify its details, then its page number
   });
 
   test("Find highest rated product in each category", async ({page}) => {

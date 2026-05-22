@@ -1,6 +1,6 @@
 export interface productDataPLP {
     name: string;
-    quantity: string;
+    category: string;
     price: number;
     stars: number;
 }
